@@ -10,6 +10,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 from textblob import TextBlob
 import spacy
 import streamlit as st
+from spacy.cli import download
+
+download("en_core_web_sm")
 
 class BookRecommender:
     def __init__(self, csv_path: str):
