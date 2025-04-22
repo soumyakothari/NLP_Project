@@ -8,24 +8,13 @@ from nltk.stem import WordNetLemmatizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from textblob import TextBlob
-import spacy
 import streamlit as st
-from spacy.cli import download
-
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    # If not found, download the model
-    from spacy.cli import download
-    download("en_core_web_sm")
-    nlp = spacy.load("en_core_web_sm")
 
 class BookRecommender:
     def __init__(self, csv_path: str):
         # Load data
         self.df = pd.read_csv(csv_path)
         # NLP resources
-        self.nlp = spacy.load('en_core_web_sm')
         self.stop_words = set(stopwords.words('english'))
         self.lemmatizer = WordNetLemmatizer()
         self.vectorizer = TfidfVectorizer(stop_words='english')
@@ -88,15 +77,6 @@ class BookRecommender:
         else:
             return 'Neutral'
 
-    def extract_entities(self, title: str):
-        key = title.lower()
-        if key not in self.indices:
-            return []
-        idx = self.indices[key]
-        text = self.df.loc[idx, 'content']
-        doc = self.nlp(text)
-        return [(ent.text, ent.label_) for ent in doc.ents]
-
 # Streamlit App
 @st.cache_resource
 def load_recommender(path: str):
@@ -127,14 +107,6 @@ def main():
             st.write(f"Sentiment: **{sentiment}**")
         else:
             st.write("No sentiment data available.")
-
-    with st.expander("Named Entity Recognition"):
-        entities = recommender.extract_entities(book_title)
-        if entities:
-            for ent, label in entities:
-                st.write(f"- {ent} ({label})")
-        else:
-            st.write("No entities found.")
 
 if __name__ == '__main__':
     main()
