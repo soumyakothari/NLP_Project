@@ -10,6 +10,12 @@ from sklearn.metrics.pairwise import cosine_similarity
 from textblob import TextBlob
 import streamlit as st
 
+for pkg in ('stopwords','wordnet'):
+    try:
+        nltk.data.find(f'corpora/{pkg}')
+    except LookupError:
+        nltk.download(pkg)
+
 class BookRecommender:
     def __init__(self, csv_path: str):
         self.df = pd.read_csv(csv_path)
