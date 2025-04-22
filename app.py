@@ -2,7 +2,7 @@ import pandas as pd
 import re
 import string
 import unicodedata
-from nltk.corpus import stopwords
+from nltk.corpus import stopwords 
 from nltk.tokenize import WordPunctTokenizer
 from nltk.stem import WordNetLemmatizer
 from sklearn.feature_extraction.text import TfidfVectorizer
