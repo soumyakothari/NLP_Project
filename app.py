@@ -12,6 +12,13 @@ import spacy
 import streamlit as st
 from spacy.cli import download
 
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    # If not found, download the model
+    from spacy.cli import download
+    download("en_core_web_sm")
+    nlp = spacy.load("en_core_web_sm")
 
 class BookRecommender:
     def __init__(self, csv_path: str):
