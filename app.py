@@ -12,45 +12,30 @@ import streamlit as st
 
 class BookRecommender:
     def __init__(self, csv_path: str):
-        # Load data
         self.df = pd.read_csv(csv_path)
-        # NLP resources
         self.stop_words = set(stopwords.words('english'))
         self.lemmatizer = WordNetLemmatizer()
         self.vectorizer = TfidfVectorizer(stop_words='english')
-        # Prepare dataset
         self._prepare()
 
     def preprocess_text(self, text: str) -> str:
         if not isinstance(text, str) or not text.strip():
             return ""
-        # Normalize and lowercase
         text = unicodedata.normalize('NFKD', text)
         text = text.lower()
-        # Remove non-letter characters
         text = re.sub(r"[^a-z]", " ", text)
-        # Remove punctuation
         text = text.translate(str.maketrans('', '', string.punctuation))
-        # Tokenize
         tokens = WordPunctTokenizer().tokenize(text)
-        # Remove stop words
         tokens = [t for t in tokens if t not in self.stop_words]
-        # Lemmatize
         tokens = [self.lemmatizer.lemmatize(t) for t in tokens]
-        # Filter short tokens
         tokens = [t for t in tokens if len(t) > 2]
         return ' '.join(tokens)
 
     def _prepare(self):
-        # Combine title and genres
         self.df['content'] = self.df['Title'].fillna('') + ' ' + self.df['genres'].fillna('')
-        # Clean content
         self.df['Cleaned_Content'] = self.df['content'].apply(self.preprocess_text)
-        # Vectorize
         self.tfidf_matrix = self.vectorizer.fit_transform(self.df['Cleaned_Content'])
-        # Compute similarity matrix
         self.cosine_sim = cosine_similarity(self.tfidf_matrix, self.tfidf_matrix)
-        # Build reverse lookup
         self.indices = pd.Series(self.df.index, index=self.df['Title'].str.lower()).drop_duplicates()
 
     def recommend(self, title: str, num_recommendations: int = 5):
@@ -84,12 +69,10 @@ def load_recommender(path: str):
 
 def main():
     st.title("📚 Book Recommender System")
-    # Sidebar inputs
     st.sidebar.header("Settings")
     data_path = st.sidebar.text_input("CSV file path", "dataset.csv")
     book_title = st.sidebar.text_input("Enter book title:")
     num_rec = st.sidebar.number_input("Number of recommendations", min_value=1, max_value=20, value=5)
-    # Load or cache model
     recommender = load_recommender(data_path)
 
     if st.sidebar.button("Recommend Books"):
@@ -108,5 +91,4 @@ def main():
         else:
             st.write("No sentiment data available.")
 
-if __name__ == '__main__':
-    main()
+if __name__ == '__
